@@ -11,7 +11,6 @@
 
 #define LENGTH 2048
 
-// Global variables
 volatile sig_atomic_t flag = 0;
 int sockfd = 0;
 char name[32];
@@ -101,7 +100,7 @@ int main(int argc, char **argv){
 
 	struct sockaddr_in server_addr;
 
-	/* Socket settings */
+	//Socket settings 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
   server_addr.sin_family = AF_INET;
   server_addr.sin_addr.s_addr = inet_addr(ip);
@@ -118,7 +117,7 @@ int main(int argc, char **argv){
 	// Send name
 	send(sockfd, name, 32, 0);
 
-	printf("=== WELCOME TO THE CHATROOM ===\n");
+	printf("---------------YOU HAVE ENTERED THE CHATROOM. WELCOME!-----------------\n");
 
 	pthread_t send_msg_thread;
   if(pthread_create(&send_msg_thread, NULL, (void *) send_msg_handler, NULL) != 0){
