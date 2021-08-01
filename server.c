@@ -51,7 +51,7 @@ void print_client_addr(struct sockaddr_in addr){
         (addr.sin_addr.s_addr & 0xff000000) >> 24);
 }
 
-/* Add clients to queue */
+// Add clients to queue 
 void queue_add(client_t *cl){
 	pthread_mutex_lock(&clients_mutex);
 
@@ -65,7 +65,7 @@ void queue_add(client_t *cl){
 	pthread_mutex_unlock(&clients_mutex);
 }
 
-/* Remove clients to queue */
+// Remove clients to queue 
 void queue_remove(int uid){
 	pthread_mutex_lock(&clients_mutex);
 
@@ -147,7 +147,7 @@ void *handle_client(void *arg){
 		bzero(buff_out, BUFFER_SZ);
 	}
 
-  /* Delete client from queue and yield thread */
+  // Delete client from queue and yield thread 
 	close(cli->sockfd);
   queue_remove(cli->uid);
   free(cli);
@@ -171,13 +171,13 @@ int main(int argc, char **argv){
   struct sockaddr_in cli_addr;
   pthread_t tid;
 
-  /* Socket settings */
+  // Socket settings 
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = inet_addr(ip);
   serv_addr.sin_port = htons(port);
 
-  /* Ignore pipe signals */
+  // Ignore pipe signals 
 	signal(SIGPIPE, SIG_IGN);
 
 	if(setsockopt(listenfd, SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0){
@@ -185,25 +185,25 @@ int main(int argc, char **argv){
     return EXIT_FAILURE;
 	}
 
-	/* Bind */
+	//Bind 
   if(bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
     perror("ERROR: Socket binding failed");
     return EXIT_FAILURE;
   }
 
-  /* Listen */
+  // Listen 
   if (listen(listenfd, 10) < 0) {
     perror("ERROR: Socket listening failed");
     return EXIT_FAILURE;
 	}
 
-	printf("=== WELCOME TO THE CHATROOM ===\n");
+	printf("---------------YOU HAVE ENTERED THE CHATROOM. WELCOME!-----------------\n");
 
 	while(1){
 		socklen_t clilen = sizeof(cli_addr);
 		connfd = accept(listenfd, (struct sockaddr*)&cli_addr, &clilen);
 
-		/* Check if max clients is reached */
+		// Check if max clients is reached 
 		if((cli_count + 1) == MAX_CLIENTS){
 			printf("Max clients reached. Rejected: ");
 			print_client_addr(cli_addr);
@@ -212,17 +212,17 @@ int main(int argc, char **argv){
 			continue;
 		}
 
-		/* Client settings */
+		//Client settings 
 		client_t *cli = (client_t *)malloc(sizeof(client_t));
 		cli->address = cli_addr;
 		cli->sockfd = connfd;
 		cli->uid = uid++;
 
-		/* Add client to the queue and fork thread */
+		// Add client to the queue and fork thread 
 		queue_add(cli);
 		pthread_create(&tid, NULL, &handle_client, (void*)cli);
 
-		/* Reduce CPU usage */
+		
 		sleep(1);
 	}
 
